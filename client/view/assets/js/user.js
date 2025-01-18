@@ -1,58 +1,58 @@
-// Importa la biblioteca de Socket.IO desde un CDN para manejar WebSockets en el cliente
+// Importa la biblioteca de Socket.IO desde un CDN
 import { io } from 'https://cdn.socket.io/4.3.2/socket.io.esm.min.js';
 
-const getUsername = async ()=>{
-    const username = localStorage.getItem('username')
-    if (username){
-        console.log(`User existed ${username}`)
+// Módulo para gestionar el nombre de usuario ---------------------------------------------------
+const getUsername = async () => {
+    const username = localStorage.getItem('username');
+    if (username) {
+        console.log(`User existed ${username}`);
+        return username;
     }
-    const res = await fetch('https://random-data-api.com/api/users/random_user')
-    const { username: randomUsername } = await res.json()
 
-    localStorage.setItem('username', randomUsername)
-    return randomUsername
-}
+    // Obtiene un nombre de usuario aleatorio si no existe en el almacenamiento local
+    const res = await fetch('https://random-data-api.com/api/users/random_user');
+    const { username: randomUsername } = await res.json();
 
-// Establece la conexión con el servidor de WebSocket
+    localStorage.setItem('username', randomUsername);
+    return randomUsername;
+};
+// ----------------------------------------------------------------------------------------------
+
+// Configura la conexión con el servidor de WebSocket -------------------------------------------
 const socket = io({
-    auth:{
-        username: await getUsername(),
-        serverOffset:0
+    auth: {
+        username: await getUsername(), // Obtiene el nombre de usuario del almacenamiento local o genera uno nuevo
+        serverOffset: 0 // Inicializa el desplazamiento del servidor para mensajes
     }
 });
+// ----------------------------------------------------------------------------------------------
 
+// Módulo de interacción con el DOM -------------------------------------------------------------
+const form = document.getElementById('form'); // Formulario para enviar mensajes
+const input = document.getElementById('input'); // Campo de entrada de texto
+const messages = document.getElementById('messages'); // Lista para mostrar los mensajes
 
-
-
-// Obtiene referencias a los elementos del DOM necesarios para el chat
-const form = document.getElementById('form'); // El formulario para enviar mensajes
-const input = document.getElementById('input'); // El campo de entrada de texto
-const messages = document.getElementById('messages'); // La lista donde se mostrarán los mensajes
-
-
-
-// Escucha el evento 'chat message' emitido por el servidor
+// Escucha los mensajes recibidos del servidor y los agrega a la lista
 socket.on('chat message', (msg, serverOffset, username) => {
-    const item = `<li>
-      <p>${msg}</p>
-      <small>${username}</small>
-    </li>`
-    messages.insertAdjacentHTML('beforeend', item)
-    socket.auth.serverOffset = serverOffset
-    // scroll to bottom of messages
-    messages.scrollTop = messages.scrollHeight
-  })
+    const item = `
+        <li>
+            <p>${msg}</p>
+            <small>${username}</small>
+        </li>`;
+    messages.insertAdjacentHTML('beforeend', item);
+    socket.auth.serverOffset = serverOffset; // Actualiza el desplazamiento del servidor
 
+    // Desplaza automáticamente hacia el final de la lista de mensajes
+    messages.scrollTop = messages.scrollHeight;
+});
 
-// Maneja el envío del formulario para enviar mensajes
+// Maneja el envío de mensajes desde el formulario
 form.addEventListener('submit', (e) => {
-    e.preventDefault(); // Previene que la página se recargue al enviar el formulario
+    e.preventDefault(); // Previene el comportamiento por defecto del formulario
 
-    // Verifica si el campo de entrada no está vacío
     if (input.value) {
-        // Emite el evento 'chat message' con el mensaje ingresado al servidor
-        socket.emit('chat message', input.value);
-        // Limpia el campo de entrada después de enviar el mensaje
-        input.value = '';
+        socket.emit('chat message', input.value); // Envía el mensaje al servidor
+        input.value = ''; // Limpia el campo de entrada
     }
 });
+// ----------------------------------------------------------------------------------------------
