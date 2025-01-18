@@ -1,3 +1,15 @@
-Una implementación de Node.js, Socket.io,Turso SQL, HTML y CSS para un chat web.
+# Chat Web en Tiempo Real
 
-![alt text](image.png)
+Este proyecto es una implementación de un chat web en tiempo real utilizando **Node.js**, **Socket.io**, **SQL**, **HTML** y **CSS**.
+
+## Vista Previa
+
+![Vista previa del chat](./images/chat-preview.png)
+
+## Tecnologías Utilizadas
+
+- Node.js
+- Socket.io
+- SQL
+- HTML
+- CSS
